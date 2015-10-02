@@ -16,7 +16,9 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     Data.RPN.Tokenizer
+                     , Data.RPN.Parser
   other-modules:       Data.RPN.Internal.Types
+                       
   build-depends:       base >= 4.7 && < 5
                      , parsec
                      , text
