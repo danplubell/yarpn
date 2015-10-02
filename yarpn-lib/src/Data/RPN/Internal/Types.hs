@@ -3,7 +3,7 @@ module Data.RPN.Internal.Types (Token(..)
                                , Operation(..)
                                , Paren(..)
                                , Tree (..)
-                               , showTree
+                               , printTree
                                , Symbol) where
 
 data Operator = Plus | Minus | Times | Div | Mod | Pow |NotOp deriving (Show,Eq)
@@ -34,6 +34,9 @@ data Tree =
 
 padding::Int -> [Char]
 padding = flip (replicate) ' '
+
+printTree::Tree -> IO()
+printTree = showTree 0
 
 showTree :: Int->Tree -> IO ()
 showTree level t = do 
