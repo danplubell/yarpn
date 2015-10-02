@@ -13,12 +13,12 @@ paren c | c == '(' = LeftParen
 
 -- | Convert a character to an abstract operator      
 operator :: Char -> Operator
-operator c | c == '+' = Plus
-           | c == '-' = Minus
-           | c == '*' = Times
-           | c == '/' = Div
-           | c == '%' = Mod
-           | c == '^' = Pow
+operator c | c == '+' = PlusOp
+           | c == '-' = MinusOp
+           | c == '*' = TimesOp
+           | c == '/' = DivOp
+           | c == '%' = ModOp
+           | c == '^' = PowOp
            | otherwise = NotOp
 
 -- | Convert a character to a token
@@ -34,8 +34,8 @@ identifier:: Char -> [Char] -> [Token]
 identifier c cs = let (str,cs') = span isAlphaNum cs in
                         operationOrIdent (c:str) : tokenize cs'   
                   where operationOrIdent str' 
-                          | str' == "min" = TokenOper Min
-                          | str' == "max" = TokenOper Max
+                          | str' == "min" = TokenOper MinOp
+                          | str' == "max" = TokenOper MaxOp
                           | otherwise    = TokenSymbol str'
 
 -- | Convert to number representated as a double 

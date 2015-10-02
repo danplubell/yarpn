@@ -4,10 +4,11 @@ module Data.RPN.Internal.Types (Token(..)
                                , Paren(..)
                                , Tree (..)
                                , printTree
+                               , Code (..)
                                , Symbol) where
 
-data Operator = Plus | Minus | Times | Div | Mod | Pow |NotOp deriving (Show,Eq)
-data Operation = Max | Min | NotOper deriving (Show,Eq)
+data Operator = PlusOp | MinusOp | TimesOp | DivOp | ModOp | PowOp |NotOp deriving (Show,Eq)
+data Operation = MaxOp | MinOp | NotOper deriving (Show,Eq)
 data Paren = LeftParen | RightParen | NotParen deriving (Show,Eq)
 
 type Symbol = [Char]
@@ -31,6 +32,19 @@ data Tree =
      | OperationNode Operation Tree Tree
      | UnaryNode Operator Tree 
   deriving (Show,Eq)
+
+data Code =
+    Sym String
+  | Pushsym String
+  | Push Double
+  | Add Int
+  | Sub Int
+  | Mul Int
+  | Div Int
+  | Min Int
+  | Max Int
+  | Pow
+  | Nop
 
 padding::Int -> [Char]
 padding = flip (replicate) ' '

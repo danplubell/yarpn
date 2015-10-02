@@ -31,10 +31,10 @@ p0 tokens =
 p1::Tree -> [Token] -> (Tree,[Token])
 p1 t tokens =
   case lookAhead tokens of
-    (TokenOp Plus)  -> let (r, rest) = p2 (accept tokens)
-                         in p1 (SumNode Plus t r) rest
-    (TokenOp Minus) -> let (r, rest) = p2 (accept tokens)
-                          in p1 (SumNode Minus t r) rest
+    (TokenOp PlusOp)  -> let (r, rest) = p2 (accept tokens)
+                         in p1 (SumNode PlusOp t r) rest
+    (TokenOp MinusOp) -> let (r, rest) = p2 (accept tokens)
+                          in p1 (SumNode MinusOp t r) rest
     _               -> (t, tokens)
 
 p2::[Token] -> (Tree,[Token])
@@ -43,15 +43,15 @@ p2 tokens = let (l , rest) = p4 tokens
 
 p3::Tree -> [Token] -> (Tree,[Token])
 p3 t tokens = case lookAhead tokens of
-  TokenOp Times -> let (r , rest) = p4 (accept tokens)
-                    in p3 (ProdNode Times t r) rest
-  TokenOp Div   -> let (r , rest) = p4 (accept tokens)
-                    in p3 (ProdNode Div t r) rest
-  TokenOp Mod   -> let (r, rest) = p4 (accept tokens)
-                    in p3 (ProdNode Mod t r) rest
-  TokenOp Pow   -> let (r, rest) = p4 (accept tokens)
-                    in p3 (ProdNode Pow t r) rest
-  _             -> (t, tokens)
+  TokenOp TimesOp -> let (r , rest) = p4 (accept tokens)
+                    in p3 (ProdNode TimesOp t r) rest
+  TokenOp DivOp   -> let (r , rest) = p4 (accept tokens)
+                    in p3 (ProdNode DivOp t r) rest
+  TokenOp ModOp   -> let (r, rest) = p4 (accept tokens)
+                    in p3 (ProdNode ModOp t r) rest
+  TokenOp PowOp   -> let (r, rest) = p4 (accept tokens)
+                    in p3 (ProdNode PowOp t r) rest
+  _               -> (t, tokens)
                        
     
 
@@ -61,10 +61,10 @@ p4 tokens = let (l, rest) = p6 tokens
 
 p5::Tree -> [Token] -> (Tree,[Token])
 p5 t tokens = case lookAhead tokens of
-  TokenOper Min -> let (r, rest) = p6 (accept tokens)
-                      in p5 (OperationNode Min t r) rest
-  TokenOper Max -> let (r, rest) = p6 (accept tokens)
-                      in p5 (OperationNode Max t r) rest
+  TokenOper MinOp -> let (r, rest) = p6 (accept tokens)
+                      in p5 (OperationNode MinOp t r) rest
+  TokenOper MaxOp -> let (r, rest) = p6 (accept tokens)
+                      in p5 (OperationNode MaxOp t r) rest
   _             -> (t, tokens)
 
 p6::[Token] -> (Tree, [Token])
@@ -76,7 +76,7 @@ p6 tokens = case lookAhead tokens of
                            else (r, accept rest)
   TokenSymbol s        -> (SymbolNode s, accept tokens)
   TokenNumber n        -> (NumberNode n, accept tokens)
-  (TokenOp op) | elem op [Plus, Minus] ->
+  (TokenOp op) | elem op [PlusOp, MinusOp] ->
                  let (r, rest) = p6 (accept tokens)
                  in (UnaryNode op r, rest)
   _                    -> error $  "Parse error on token: " ++ show tokens 
