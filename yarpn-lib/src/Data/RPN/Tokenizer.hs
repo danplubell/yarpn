@@ -1,4 +1,4 @@
-module Data.RPN.Tokenizer where
+module Data.RPN.Tokenizer (tokenize) where
 
 import Data.RPN.Internal.Types
 import Data.Char
@@ -47,13 +47,13 @@ number c cs =
          cnvtToTokenNum s = TokenNumber (read s::Double) 
 
 -- | Convert a string to a list of tokens
-tokenize :: String -> [Token]
-tokenize [] = []
-tokenize (c:cs)
+tokenizer :: String -> [Token]
+tokenizer [] = []
+tokenizer (c:cs)
          | isDigit c = number c cs
          | isAlpha c = identifier c cs
-         | otherwise = tokenizeChar c : tokenize cs
+         | otherwise = tokenizeChar c : tokenizer cs
 
--- | Convert a string to a filteres list of tokens
-tokenizer :: String -> [Token]
-tokenizer = filter (\t -> t /= TokenWhiteSpace) . tokenize 
+-- | Convert a string to a filtered list of tokens
+tokenize :: String -> [Token]
+tokenize = filter (\t -> t /= TokenWhiteSpace) . tokenizer 
