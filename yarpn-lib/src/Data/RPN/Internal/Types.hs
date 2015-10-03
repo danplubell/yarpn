@@ -48,8 +48,25 @@ data Code =
   | Pow Int
   | Mod Int
   | Nop
-  deriving (Show, Eq, Ord)
-           
+  deriving (Eq, Ord)
+
+instance Show Code where
+  show c = case c of
+    Sym s     -> "sym " ++ s
+    Pushsym s -> "pushsym " ++ s
+    Push n    -> "push " ++ show n
+    Add n     -> "add " ++ show n
+    Sub n     -> "sub"  ++ show n
+    Mul n     -> "mul " ++ show n
+    Div n     -> "div " ++ show n
+    Min n     -> "min " ++ show n
+    Max n     -> "max " ++ show n
+    Neg n     -> "neg " ++ show n
+    Pos n     -> "pos " ++ show n
+    Pow n     -> "pow " ++ show n
+    Mod n     -> "mod " ++ show n
+    Nop       -> "nop "
+
 padding::Int -> [Char]
 padding = flip (replicate) ' '
 
