@@ -43,9 +43,13 @@ data Code =
   | Div Int
   | Min Int
   | Max Int
-  | Pow
+  | Neg Int
+  | Pos Int
+  | Pow Int
+  | Mod Int
   | Nop
-
+  deriving (Show, Eq, Ord)
+           
 padding::Int -> [Char]
 padding = flip (replicate) ' '
 
