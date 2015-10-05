@@ -8,6 +8,9 @@ import qualified Data.Foldable as DF
 generate::Tree -> (DSEQ.Seq Code, DSE.Set Code) -> (DSEQ.Seq Code, DSE.Set Code)
 generate t (cds,syms)=
   case t of
+    AssignNode s l       ->
+      let (cds' , syms') = generate l (cds,syms)
+      in (cds' DSEQ.|> Movesym s, DSE.insert (Sym s) syms')
     SymbolNode s         ->
       (cds DSEQ.|> Pushsym s, DSE.insert (Sym s) syms)
     NumberNode n         ->

@@ -31,6 +31,10 @@ p0 tokens =
 p1::Tree -> [Token] -> (Tree,[Token])
 p1 t tokens =
   case lookAhead tokens of
+    TokenAssign       -> case t of
+                          SymbolNode s -> let (extree,rest) = p0 (accept tokens)
+                                               in (AssignNode s extree,rest)
+                          _           -> error $ "only variables can be assigned :  " ++ show t
     (TokenOp PlusOp)  -> let (r, rest) = p2 (accept tokens)
                          in p1 (SumNode PlusOp t r) rest
     (TokenOp MinusOp) -> let (r, rest) = p2 (accept tokens)
@@ -75,7 +79,9 @@ p6 tokens = case lookAhead tokens of
                            then error "Missing right paren"
                            else (r, accept rest)
   TokenSymbol s        -> (SymbolNode s, accept tokens)
+                          
   TokenNumber n        -> (NumberNode n, accept tokens)
+                              
   (TokenOp op) | elem op [PlusOp, MinusOp] ->
                  let (r, rest) = p6 (accept tokens)
                  in (UnaryNode op r, rest)
@@ -88,42 +94,6 @@ parse tokens = let (tree, rest) = p0 tokens
                       then tree
                       else error $ "Leftover tokens: " ++ show tokens 
 
-{-
-p0:: [Token]-> (Tree,[Token])
-p0 = undefined
-
-p4::[Token]-> (Tree, [Token])
-p4 tokens =
-  let (p6Tree,rest) = p6 tokens
-      in p5 ( p6Tree,rest
-
-p5::[Token]-> (Tree,[Token])
-p5 tokens =
-  let (p6Tree, tokens') = p6 tokens
-  in  
-    case lookAhead tokens' of
-      (TokenOper o) ->
-       let (p5Tree, tokens'') = p5 (accept tokens')
-       in (OperationNode o p5Tree p6Tree, tokens'')
-      _            -> (p6Tree, tokens')
-
-      
-p6:: [Token]-> (Tree,[Token])
-p6 tokens = 
-  case lookAhead tokens of
-     (TokenNumber n)        -> (NumberNode n, accept tokens)
-     (TokenSymbol s)        -> (SymbolNode s, accept tokens)
-     (TokenOper op) | elem op [Plus,Minus] ->
-                      let (facTree, tokens') = p6 (accept tokens)
-                      in (UnaryNode facTree, tokens')
-     (TokenParen LeftParen) ->
-       let (expTree,tokens') = p0 (accept tokens)
-       in
-         if lookAhead tokens' /= TokenParen RightParen
-         then error "Missing right parenthesis"
-         else (expTree, accept tokens')
-     _                      -> error $ "Parse error on token: " ++ show tokens
--}
 lookAhead :: [Token] -> Token
 lookAhead [] = TokEnd
 lookAhead (c:_) = c

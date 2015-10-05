@@ -21,6 +21,7 @@ data Token =
      | TokenWhiteSpace
      | TokenSymbol Symbol
      | TokenInvalid [Char]       
+     | TokenAssign
      | TokEnd
      deriving (Show, Eq)
 
@@ -30,7 +31,8 @@ data Tree =
      | SumNode Operator Tree Tree
      | ProdNode Operator Tree Tree
      | OperationNode Operation Tree Tree
-     | UnaryNode Operator Tree 
+     | UnaryNode Operator Tree
+     | AssignNode String Tree
   deriving (Show,Eq)
 
 data Code =
@@ -47,6 +49,7 @@ data Code =
   | Pos Int
   | Pow Int
   | Mod Int
+  | Movesym String
   | Nop
   deriving (Eq, Ord)
 
@@ -54,9 +57,10 @@ instance Show Code where
   show c = case c of
     Sym s     -> "sym " ++ s
     Pushsym s -> "pushsym " ++ s
+    Movesym s -> "movesym " ++ s
     Push n    -> "push " ++ show n
     Add n     -> "add " ++ show n
-    Sub n     -> "sub"  ++ show n
+    Sub n     -> "sub " ++ show n
     Mul n     -> "mul " ++ show n
     Div n     -> "div " ++ show n
     Min n     -> "min " ++ show n
@@ -92,6 +96,9 @@ showTree level t = do
                 showTree (level + 1) r
            UnaryNode op l       ->
              do showNode "UnaryNode" (show op)
+                showTree (level + 1) l
+           AssignNode str l     ->
+             do showNode "AssignNode" str
                 showTree (level + 1) l
            where
              showNode::String -> String -> IO()

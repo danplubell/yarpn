@@ -26,6 +26,7 @@ tokenizeChar::Char -> Token
 tokenizeChar c 
   | elem c "()"    = TokenParen (paren c)
   | elem c "-+/*%" = TokenOp (operator c)
+  | c == '='        = TokenAssign
   | isSpace c      = TokenWhiteSpace
   | otherwise      = TokenInvalid $ "Cannot tokenize: " ++ [c]
                      
@@ -38,7 +39,7 @@ identifier c cs = let (str,cs') = span isAlphaNum cs in
                           | str' == "max" = TokenOper MaxOp
                           | otherwise    = TokenSymbol str'
 
--- | Convert to number representated as a double 
+-- | Convert to number represented as a double 
 number :: Char -> [Char] -> [Token]                                                 
 number c cs = 
    let (digs, cs') = span isDecimalOrDigit cs in
