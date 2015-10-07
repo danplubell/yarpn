@@ -1,4 +1,4 @@
-module Data.RPN.Evaluator where
+module Data.RPN.Evaluator (evaluate)  where
 import Data.RPN.Internal.Types
 import qualified Data.Map as DM
 import qualified Data.Sequence as DS
