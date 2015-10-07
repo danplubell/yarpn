@@ -3,8 +3,9 @@ import Data.RPN.Internal.Types
 import qualified Data.Map as DM
 import qualified Data.Sequence as DS
 import Control.Monad.State
+import Data.Fixed
 
-type SymbolTab = DM.Map String Double
+type SymbolTab = DM.Map String (Maybe Double)
 
 type Stack = DS.Seq Double
 
@@ -15,15 +16,15 @@ data EvalState = EvalState {symTab::SymbolTab, stack::Stack} deriving (Show, Eq,
 type Evaluator a = State EvalState a  
 
 -- | Lookup a symbol from the symbol table
-lookUpSym :: String -> Evaluator Double
+lookUpSym :: String -> Evaluator (Maybe Double)
 lookUpSym str = do
   evalS <- get
   case DM.lookup str (symTab evalS) of
     Just v -> return v
-    Nothing -> error $ "Undefined variable"
+    Nothing -> return Nothing
 
 -- | Add a symbol to the symbol table
-addSym :: String -> Double -> Evaluator ()
+addSym :: String -> Maybe Double -> Evaluator ()
 addSym str val = do
   evalS <- get
   put $ EvalState (DM.insert str val (symTab evalS)) (stack evalS)
@@ -44,25 +45,63 @@ pop = do
   put $ EvalState (symTab evalS) xs
   return x
 
-evaluate :: Stack  -> SymbolTab -> Double -> Code -> Double
-evaluate s st d c = case c of
-  Sym s       -> undefined
-  Pushsym s   -> undefined
-  Push n      -> undefined
-  Add n       -> undefined
-  Sub n       -> undefined
-  Mul n       -> undefined
-  Div n       -> undefined
-  Min n       -> undefined
-  Max n       -> undefined
-  Neg n       -> undefined
-  Pos n       -> undefined
-  Pow n       -> undefined
-  Mod n       -> undefined
-  Movesym s   -> undefined
-  _           -> undefined
+top::Evaluator Double
+top = do
+  evalS <- get
+  let t = DS.index  (stack evalS) 0
+  return t
   
-evaluator:: Stack  -> SymbolTab -> [Code] -> Double 
-evaluator s st cl = foldl (evaluate s st)  0.0 cl 
+evaluate::[Code] -> EvalState -> (Double,EvalState)
+evaluate l s = runState (evaluator l) s
 
-     
+evaluator::[Code]->Evaluator Double
+evaluator l = do
+  processCodes l  
+  top
+  
+processCodes :: [Code]->Evaluator ()
+processCodes l = do
+  mapM_ evaluateCode l   
+
+evaluateCode :: Code -> Evaluator ()
+evaluateCode c = case c of
+  Sym s       -> do
+    v <- lookUpSym s
+    case v of
+      Nothing -> addSym s Nothing
+      Just _  -> return ()
+  Pushsym s   -> do
+    v <- lookUpSym s
+    case v of
+      Nothing -> error "Variable value is not defined"
+      Just x  -> push x
+  Push n      -> push n
+  Add _       -> pop2apply (+)
+  Sub _       -> pop2apply (-)
+  Mul _       -> pop2apply (*)
+  Div _       -> pop2apply (/)
+  Min _       -> pop2apply (min)
+  Max _       -> pop2apply (max)
+  Neg _       -> popapplyUnary (negate)
+  Pos _       -> popapplyUnary (abs)
+  Pow _       -> pop2apply (**)
+  Mod _       -> pop2apply (mod')
+  Movesym s   -> do
+    v <- pop
+    addSym s (Just v)
+    push v
+  _           -> error "An unknown instruction was encountered"
+
+popapplyUnary:: (Double -> Double) -> Evaluator ()
+popapplyUnary f = do
+  v1 <- pop
+  let v = f v1
+  push v
+  
+pop2apply:: (Double -> Double -> Double) -> Evaluator ()
+pop2apply f = do
+  v2 <- pop
+  v1 <- pop
+  let v = f v1 v2
+  push v  
+  
