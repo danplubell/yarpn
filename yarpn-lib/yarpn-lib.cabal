@@ -16,9 +16,10 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     Data.RPN.Tokenizer
-                     , Data.RPN.Parser
-                     , Data.RPN.Generator
-                     , Data.RPN.TestHarness
+                       Data.RPN.Parser
+                       Data.RPN.Generator
+                       Data.RPN.Evaluator
+                       Data.RPN.Api
   other-modules:       Data.RPN.Internal.Types
                        
   build-depends:       base >= 4.7 && < 5
