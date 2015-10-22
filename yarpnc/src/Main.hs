@@ -29,9 +29,22 @@ main = do
 
 handleFlags:: [Flag] -> [FilePath]   -> IO ()
 handleFlags flgs files = do
-  print flgs
-  print files
+  hinp <- case files of
+               [] -> return stdin
+               (i:_) -> openFile i ReadMode
+  hout <- case files of
+               []      -> return stdout
+               (_:o:_) -> openFile o WriteMode
+               [_]     -> return stdout
 
+  input <- takeWhile (not.null).lines <$> hGetContents hinp
+  case flgs of
+        (TokenizeOnly:_) -> mapM_ (hPrint hout.tokenize)  input
+        (ParseOnly:_)    -> mapM_ (hPrint hout.parse.tokenize) input
+        _                -> mapM_ (hPrint hout.emitInstructions.generate.parse.tokenize) input
+
+  print input
+  hClose hinp
 
 
 usageMsg::String
