@@ -37,41 +37,13 @@ handleFlags flgs files = do
 
   input <- takeWhile (not.null).lines <$> hGetContents hinp
   case flgs of
-        (TokenizeOnly:_) -> mapM_ (hPrint hout.tokenize)  input
+        (TokenizeOnly:_) -> sequence_ $ foldl (\b a->b `mappend` map (hPrint hout) a) [] (map tokenize input)
         (ParseOnly:_)    -> sequence_ $ foldl (\b a->b `mappend` map (hPutStrLn hout) a) [] (map (printTree.parse.tokenize) input)
---mapM_ (hPrint hout) (map (printTree.parse.tokenize) input)
-        _                -> mapM_ (hPrint hout.emitInstructions.generate.parse.tokenize) input
+        _                -> sequence_ $ foldl (\b a->b `mappend` map (hPutStrLn hout) a) [] (map (emitInstructions.generate.parse.tokenize) input)
 
-  print input
   hClose hinp
-
+  hClose hout
 
 
 usageMsg::String
 usageMsg = usageInfo "yarpnc <inputFile> <outputFile> [OPTIONS]" options
---  input <- fmap (map  (emitInstructions.generate.parse.tokenize)  ) (takeWhile (not.null).lines <$> getContents)
---  input <- parse.takeWhile (not.null).lines <$>   getContents
---  print input
---     input <- takeWhile (not.null).lines <$> getContents
-
-
-  --     input <- takeWhile (/= "q").lines <$> getContents
---     print $ map (parse.tokenize) input
---     print (concatMap tokenize input)
-{-
-loop :: IO ()
-loop = do
-  args <- getArgs
-  line <- getLine
-  eof <- isEOF
-  unless (eof || null line) $
-    do
-     c <- processLine line
-     mapM_ putStrLn c
-     loop
-
--}
-{-
-processLine::String -> IO [String]
-processLine s = return $ (emitInstructions.generate.parse.tokenize) s
--}
