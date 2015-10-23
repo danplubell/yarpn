@@ -24,14 +24,14 @@ operator c | c == '+' = PlusOp
 -- | Convert a character to a token
 tokenizeChar::Char -> Token
 tokenizeChar c
-  | elem c "()"    = TokenParen (paren c)
-  | elem c "-+/*%^" = TokenOp (operator c)
+  | c `elem` "()"    = TokenParen (paren c)
+  | c `elem` "-+/*%^" = TokenOp (operator c)
   | c == '='        = TokenAssign
   | isSpace c      = TokenWhiteSpace
   | otherwise      = TokenInvalid $ "Cannot tokenize: " ++ [c]
 
 -- | Convert to an operation or identifier
-identifier:: Char -> [Char] -> [Token]
+identifier:: Char -> String -> [Token]
 identifier c cs = let (str,cs') = span isAlphaNum cs in
                         operationOrIdent (c:str) : tokenize cs'
                   where operationOrIdent str'
@@ -40,7 +40,7 @@ identifier c cs = let (str,cs') = span isAlphaNum cs in
                           | otherwise    = TokenSymbol str'
 
 -- | Convert to number represented as a double
-number :: Char -> [Char] -> [Token]
+number :: Char -> String -> [Token]
 number c cs =
    let (digs, cs') = span isDecimalOrDigit cs in
        cnvtToTokenNum (c:digs) : tokenize cs'

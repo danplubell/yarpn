@@ -1,7 +1,5 @@
 module Main where
 
-import           Control.Applicative   ((<$>))
-import           Control.Monad
 import           Data.RPN.Api
 import           System.Console.GetOpt
 import           System.Environment
@@ -40,11 +38,13 @@ handleFlags flgs files = do
   input <- takeWhile (not.null).lines <$> hGetContents hinp
   case flgs of
         (TokenizeOnly:_) -> mapM_ (hPrint hout.tokenize)  input
-        (ParseOnly:_)    -> mapM_ (hPrint hout.parse.tokenize) input
+        (ParseOnly:_)    -> sequence_ $ foldl (\b a->b `mappend` map (hPutStrLn hout) a) [] (map (printTree.parse.tokenize) input)
+--mapM_ (hPrint hout) (map (printTree.parse.tokenize) input)
         _                -> mapM_ (hPrint hout.emitInstructions.generate.parse.tokenize) input
 
   print input
   hClose hinp
+
 
 
 usageMsg::String

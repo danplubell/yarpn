@@ -1,6 +1,6 @@
-module Data.RPN.Parser (parse) where
+module Data.RPN.Parser (parse,printTree) where
 
-import Data.RPN.Internal.Types
+import           Data.RPN.Internal.Types
 
 {-
 Grammar
@@ -34,12 +34,12 @@ p1 t tokens =
     TokenAssign       -> case t of
                           SymbolNode s -> let (extree,rest) = p0 (accept tokens)
                                                in (AssignNode s extree,rest)
-                          _           -> error $ "only variables can be assigned :  " ++ show t
+                          _            -> error $ "only variables can be assigned :  " ++ show t
     (TokenOp PlusOp)  -> let (r, rest) = p2 (accept tokens)
                          in p1 (SumNode PlusOp t r) rest
     (TokenOp MinusOp) -> let (r, rest) = p2 (accept tokens)
                           in p1 (SumNode MinusOp t r) rest
-    _               -> (t, tokens)
+    _                 -> (t, tokens)
 
 p2::[Token] -> (Tree,[Token])
 p2 tokens = let (l , rest) = p4 tokens
@@ -56,8 +56,8 @@ p3 t tokens = case lookAhead tokens of
   TokenOp PowOp   -> let (r, rest) = p4 (accept tokens)
                     in p3 (ProdNode PowOp t r) rest
   _               -> (t, tokens)
-                       
-    
+
+
 
 p4::[Token] -> (Tree,[Token])
 p4 tokens = let (l, rest) = p6 tokens
@@ -69,30 +69,30 @@ p5 t tokens = case lookAhead tokens of
                       in p5 (OperationNode MinOp t r) rest
   TokenOper MaxOp -> let (r, rest) = p6 (accept tokens)
                       in p5 (OperationNode MaxOp t r) rest
-  _             -> (t, tokens)
+  _               -> (t, tokens)
 
 p6::[Token] -> (Tree, [Token])
 p6 tokens = case lookAhead tokens of
-  TokenParen LeftParen -> let (r, rest) = p0 (accept tokens)
-                         in
-                           if lookAhead rest /= TokenParen RightParen
-                           then error "Missing right paren"
-                           else (r, accept rest)
-  TokenSymbol s        -> (SymbolNode s, accept tokens)
-                          
-  TokenNumber n        -> (NumberNode n, accept tokens)
-                              
-  (TokenOp op) | elem op [PlusOp, MinusOp] ->
-                 let (r, rest) = p6 (accept tokens)
-                 in (UnaryNode op r, rest)
-  _                    -> error $  "Parse error on token: " ++ show tokens 
-                           
+  TokenParen LeftParen            -> let (r, rest) = p0 (accept tokens)
+                                    in
+                                      if lookAhead rest /= TokenParen RightParen
+                                        then error "Missing right paren"
+                                        else (r, accept rest)
+  TokenSymbol s                   -> (SymbolNode s, accept tokens)
+
+  TokenNumber n                   -> (NumberNode n, accept tokens)
+
+  (TokenOp op)
+    | op `elem` [PlusOp, MinusOp] -> let (r, rest) = p6 (accept tokens)
+                                    in (UnaryNode op r, rest)
+  _                               -> error $  "Parse error on token: " ++ show tokens
+
 parse::[Token] -> Tree
 parse tokens = let (tree, rest) = p0 tokens
                    in
                       if null rest
                       then tree
-                      else error $ "Leftover tokens: " ++ show tokens 
+                      else error $ "Leftover tokens: " ++ show tokens
 
 lookAhead :: [Token] -> Token
 lookAhead [] = TokEnd
@@ -102,4 +102,33 @@ accept :: [Token] -> [Token]
 accept [] = error "Nothing to accept"
 accept (_:ts) = ts
 
+
+printTree::Tree -> [String]
+printTree = showTree [] 0
+
+showTree :: [String]->Int->Tree -> [String]
+showTree strl level t =
+         case t of
+           SymbolNode s         -> showNode strl "SymbolNode" s
+           NumberNode n'        -> showNode strl "NumberNode" (show n')
+           SumNode op l r       -> traverseChildren op l r strl "SumNode"
+           ProdNode op l r      -> traverseChildren op l r strl "ProdNode"
+           OperationNode op l r -> traverseChildren op l r strl "OperationNode"
+           UnaryNode op l       ->
+                showNode (showTree strl nextPad l)   "UnaryNode" (show op)
+           AssignNode op l     ->
+                showNode (showTree strl nextPad l)   "SumNode" (show op)
+           where
+              showNode::[String]-> String -> String -> [String]
+              showNode strl' s' op' = if level  > 0
+                              then (padding level ++ s' ++ "( " ++ op'  ++ ")"):strl'
+                              else (s' ++ " " ++ op'):strl'
+              nextPad::Int
+              nextPad = level + 2
+
+              traverseChildren::Show a => a -> Tree->Tree->[String]->String -> [String]
+              traverseChildren op' l' r' strl' s'   = showNode (showTree (showTree strl' nextPad r') nextPad l') s' (show op')
+
+              padding::Int -> String
+              padding = flip replicate ' '
 
