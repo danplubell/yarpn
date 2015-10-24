@@ -59,5 +59,3 @@ tokenizer (c:cs)
 tokenize :: String -> [Token]
 tokenize = filter (/= TokenWhiteSpace) . tokenizer
 
-newf::String -> [Token]
-newf = tokenize
