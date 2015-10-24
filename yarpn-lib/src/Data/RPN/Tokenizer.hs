@@ -57,7 +57,7 @@ tokenizer (c:cs)
 
 -- | Convert a string to a filtered list of tokens
 tokenize :: String -> [Token]
-tokenize = filter (\t -> t /= TokenWhiteSpace) . tokenizer
+tokenize = filter (/= TokenWhiteSpace) . tokenizer
 
-emitTokens::[Token] -> [String]
-emitTokens = map show
+newf::String -> [Token]
+newf = tokenize
