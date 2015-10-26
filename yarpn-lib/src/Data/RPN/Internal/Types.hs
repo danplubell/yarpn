@@ -50,8 +50,10 @@ data Code =
   | Mod Int
   | Movesym String
   | Nop
-  deriving (Eq, Ord)
+  deriving (Show,Ord,Read,Eq)
 
+
+{-
 instance Show Code where
   show c = case c of
     Sym s     -> "sym " ++ s
@@ -69,4 +71,4 @@ instance Show Code where
     Pow n     -> "pow " ++ show n
     Mod n     -> "mod " ++ show n
     Nop       -> "nop "
-
+-}

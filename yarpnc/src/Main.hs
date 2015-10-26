@@ -35,7 +35,8 @@ handleFlags flgs files = do
                (_:o:_) -> openFile o WriteMode
                [_]     -> return stdout
 
-  input <- takeWhile (not.null).lines <$> hGetContents hinp
+--  input <- takeWhile (not.null).lines <$> hGetContents hinp
+  input <- takeWhileInclusive isContinue.lines <$> hGetContents hinp
   case flgs of
         (TokenizeOnly:_) -> sequence_ $ foldl (\b a->b `mappend` map (hPrint hout) a) [] (map tokenize input)
         (ParseOnly:_)    -> sequence_ $ foldl (\b a->b `mappend` map (hPutStrLn hout) a) [] (map (printTree.parse.tokenize) input)
@@ -43,7 +44,17 @@ handleFlags flgs files = do
 
   hClose hinp
   hClose hout
+  where isContinue :: String -> Bool
+        isContinue s | null s       = False
+                     | '=' `elem` s =  True
+                     | otherwise    = False
 
+validated::String -> Bool
+validated s = True
 
 usageMsg::String
 usageMsg = usageInfo "yarpnc <inputFile> <outputFile> [OPTIONS]" options
+
+takeWhileInclusive :: (a -> Bool) -> [a] -> [a]
+takeWhileInclusive _ [] = []
+takeWhileInclusive p (x:xs) = x : if p x then takeWhileInclusive p xs else []

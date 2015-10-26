@@ -1,10 +1,10 @@
-module Data.RPN.Api (module Data.RPN.Tokenizer
-                     , module Data.RPN.Generator
-                     , module Data.RPN.Parser
-                     , module Data.RPN.Evaluator
+module Data.RPN.Api (module Tokenizer
+                     , module Generator
+                     , module Parser
+                     , module Evaluator
                      ) where
 
-import           Data.RPN.Evaluator
-import           Data.RPN.Generator
-import           Data.RPN.Parser
-import           Data.RPN.Tokenizer
+import           Data.RPN.Evaluator as Evaluator
+import           Data.RPN.Generator as Generator
+import           Data.RPN.Parser    as Parser
+import           Data.RPN.Tokenizer as Tokenizer

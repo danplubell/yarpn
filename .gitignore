@@ -6,3 +6,4 @@
 */log/
 *.db
 */.stack-work/
+.stack-work/

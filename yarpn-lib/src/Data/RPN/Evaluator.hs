@@ -1,4 +1,4 @@
-module Data.RPN.Evaluator (evaluate)  where
+module Data.RPN.Evaluator (evaluateCodes,loadCodes)  where
 import           Control.Monad.State
 import           Data.Fixed
 import qualified Data.Map                as DM
@@ -45,23 +45,29 @@ pop = do
   put $ EvalState (symTab evalS) xs
   return x
 
+-- | Get the top valud off the stack
 top::Evaluator Double
 top = do
   evalS <- get
   let t = DS.index  (stack evalS) 0
   return t
 
-evaluate::[Code] -> EvalState -> (Double,EvalState)
-evaluate l  = runState (evaluator l)
+-- | Evaluate a list of Codes representated by a string
+evaluateCodes::[String] -> Double
+evaluateCodes l = fst $ (evaluate .loadCodes) l
 
+-- | Evaluate a list of codes and return the result and the current state
+evaluate::[Code] -> (Double,EvalState)
+evaluate l  = runState (evaluator l) (EvalState DM.empty DS.empty)
+
+-- | Evaluator for a list of codes
 evaluator::[Code]->Evaluator Double
-evaluator l = do
-  processCodes l
+evaluator l  = do
+  mapM_ evaluateCode l
   top
 
-processCodes :: [Code]->Evaluator ()
-processCodes  =  mapM_ evaluateCode
 
+-- | Evaluate a single code
 evaluateCode :: Code -> Evaluator ()
 evaluateCode c = case c of
   Sym s       -> do
@@ -91,12 +97,14 @@ evaluateCode c = case c of
     push v
   _           -> error "An unknown instruction was encountered"
 
+-- | Pop one element off stack and apply unary function
 popapplyUnary:: (Double -> Double) -> Evaluator ()
 popapplyUnary f = do
   v1 <- pop
   let v = f v1
   push v
 
+-- | Pop 2 elements off stack and apply function
 pop2apply:: (Double -> Double -> Double) -> Evaluator ()
 pop2apply f = do
   v2 <- pop
@@ -104,3 +112,7 @@ pop2apply f = do
   let v = f v1 v2
   push v
 
+-- | Load list of Codes from a list of string representations
+loadCodes::[String]->[Code]
+loadCodes = map readCode
+  where readCode s = read s::Code

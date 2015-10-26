@@ -117,7 +117,7 @@ showTree strl level t =
            UnaryNode op l       ->
                 showNode (showTree strl nextPad l)   "UnaryNode" (show op)
            AssignNode op l     ->
-                showNode (showTree strl nextPad l)   "SumNode" (show op)
+                showNode (showTree strl nextPad l)   "AssignNode" (show op)
            where
               showNode::[String]-> String -> String -> [String]
               showNode strl' s' op' = if level  > 0
