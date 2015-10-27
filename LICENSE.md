@@ -1,9 +1,6 @@
-# yarpn -- Yet another RPN Compiler and Interpreter in Haskell
-
-#License
 The MIT License (MIT)
 
-Copyright (c) 2015 Dan Plubell 
+Copyright (c) 2015 Dan Plubell <danplubell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
